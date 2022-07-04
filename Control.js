@@ -9,21 +9,21 @@ export {
     show,
     initRtc,
     initRtm,
-    initRtcPre,
+    initPre,
 }
 // 服务器信息
 let server_info = {
     //后端公共HTTP接口-头信息
-    header_X_Source_Type : "11",
+    header_X_Source_Type: "11",
     header_X_Project_Id : "6",
-    header_X_Access : "imzgoframe",
-    ipPort:"127.0.0.1",
+    header_X_Access     : "imzgoframe",
+    ipPort              : "127.0.0.1:1111",
 }
 
 let rtc = {
+    client: null,
     localAudioTrack: null,
     localVideoTrack: null,
-    client: null,
     remoteVideoTrack:null,
 };
 
@@ -36,14 +36,32 @@ let options = {
     appId: "8ff429463a234c7bae327d74941a5956",
     channel: "ckck",
     rtc_user:{
-        token: "0068ff429463a234c7bae327d74941a5956IAB/R5p6ic9fTQey5wybWvaJEa1mms4XqNq79MC9+v1+94Qj5dgAAAAAEAC0+3p1hlm+YgEAAQCGWb5i",
-        // Set the user ID.
-        uid: 123456,
+        token : "",
+        uid: "test_user",
     },
     rtm_user :{
         uid : "test_user",
-        token: "0068ff429463a234c7bae327d74941a5956IACV/S62FPHCZqzTRqWTKpxK4i2DJGe819/q2WCEQz1FIob86ogAAAAAEAAgFA0DX1q+YgEA6AOvKDdW"
+        token: ""
     },
+}
+let getRTCTokenCallback = function(data){
+    options.rtc_user.token = data;
+    initRtcPre();
+}
+
+let getRTMTokenCallback = function(data){
+    options.rtm_user.token = data;
+}
+
+let initPre = function(){
+
+    var data = {"username":options.rtm_user.uid};
+    request_server("/twin/agora/rtm/get/token",data,getRTMTokenCallback)
+
+    var data =  {"username":options.rtm_user.uid,"channel":options.channel}
+    request_server("/twin/agora/rtc/get/token",data,getRTCTokenCallback)
+    // getRTMToken(options.rtm_user.uid);
+    // getRTCToken(options.rtc_user.uid,options.channel);
 }
 
 let initRtcPre = function(){
@@ -98,10 +116,12 @@ let initRtcPre = function(){
 
 
 let initRtc = function (){
-    console.log("initRtc :");
+    console.log("initRtc :"," token:",options.rtc_user.token);
 
     document.getElementById("join").onclick = async function () {
         // Join an RTC channel.
+
+        console.log("rtc jon :",options.rtc_user)
         await rtc.client.join(options.appId, options.channel, options.rtc_user.token, options.rtc_user.uid);
         // Create a local audio track from the audio sampled by a microphone.
         rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
@@ -113,7 +133,7 @@ let initRtc = function (){
         const localPlayerContainer = document.createElement("div");
         // Specify the ID of the DIV container. You can use the uid of the local user.
         localPlayerContainer.id = options.uid;
-        localPlayerContainer.textContent = "Local user " + options.uid;
+        localPlayerContainer.textContent = "Local user " + options.rtc_user.uid;
         localPlayerContainer.style.width = "640px";
         localPlayerContainer.style.height = "480px";
         document.body.append(localPlayerContainer);
@@ -157,6 +177,7 @@ let initRtm = function (){
     // 登录
     document.getElementById("login").onclick = async function () {
         options.rtm_user.uid = document.getElementById("userID").value.toString()
+        console.log(options.rtm_user)
         await rtm.client.login(options.rtm_user)
     }
 
@@ -186,6 +207,40 @@ let initRtm = function (){
         }
     }
 }
+
+let get_request_server_comm_header = function(){
+    return {
+        "X-Source-Type": server_info.header_X_Source_Type,
+        "X-Project-Id": server_info.header_X_Project_Id,
+        "X-Access": server_info.header_X_Access,
+    }
+}
+
+let request_server = function (uri, data,callbackFunc){
+
+    $.ajax({
+        headers: get_request_server_comm_header(),
+        contentType: "application/json;charset=utf-8",
+        type: "POST",
+        data :JSON.stringify(data),
+        url: "http://"+server_info.ipPort+uri,
+        success: function(backData){
+            console.log("request_server backInfo : ",backData)
+            backData = eval(   backData  );
+            if(backData.code != 200){
+                return alert("ajax req back data err");
+            }
+
+            if (!callbackFunc){
+                console.log("request_server no callback")
+                return 1;
+            }
+            callbackFunc(backData.data);
+        }
+    });
+
+}
+
 //截取 - 对方视频 - 图片
 let screenshots = function (){
     var videoFrameImgData = rtc.remoteVideoTrack.getCurrentFrameData();
@@ -199,42 +254,104 @@ let screenshots = function (){
     var myImg = new Image();
     myImg.src = canvas.toDataURL("image/jpeg",0.7);
 
-    request_service(myImg);
+    // request_service(myImg);
+    var data = {"stream":myImg.src}
+    request_server("/file/upload/img/one/stream/base64",data,screenshotsCallback);
 }
 //将截图后图片 推送到服务端 ，服务端返回图片的URL，再通过RTM推送到对端
-let request_service = function (imgObj){
-    console.log("request_service imgObj:",imgObj);
+let screenshotsCallback = function(data){
+    var r= Math.random();
+    var url = "http://"+server_info.ipPort+"/"+data.local_url + "?r="+r;
+    console.log("url:",url);
 
-    $.ajax({
-        headers: {
-            "X-Source-Type": server_info.header_X_Source_Type,
-            "X-Project-Id": server_info.header_X_Project_Id,
-            "X-Access": server_info.header_X_Access,
-        },
-        // dataType: "json",
-        // data: JSON.stringify({"path": "apache-tomcat-8.5.81-fulldocs.tar.gz"}),
-        // data:form,
-        // contentType: "application/json;charset=utf-8",
-        // url: "http://localhost:1111/persistence/file/upload/stream",
-        type: "POST",
-        data :{"stream":imgObj.src},
-        url: "http://"+server_info.ipPort+"/file/upload/img/one/stream/base64",
-        success: function(backData){
-            // alert("ok");
-            console.log("backData:",backData);
-            backData = eval(   backData  );
-            if(backData.code != 200){
-                return alert("ajax req back data err");
-            }
-
-            var r= Math.random();
-            var url = "http://"+server_info.ipPort+"/"+backData.data.local_url + "?r="+r;
-            console.log("url:",url);
-
-            rtm.channel.sendMessage({ text: url }).then(() => {
-                document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)
-            });
-
-        }
+    rtm.channel.sendMessage({ text: url }).then(() => {
+        document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)
     });
 }
+
+
+// let getRTMToken = function(username){
+//     if (!username){
+//         return alert("username empty");
+//     }
+//     console.log("start getRTMToken:");
+//     $.ajax({
+//         headers: {
+//             "X-Source-Type": server_info.header_X_Source_Type,
+//             "X-Project-Id": server_info.header_X_Project_Id,
+//             "X-Access": server_info.header_X_Access,
+//         },
+//         contentType: "application/json;charset=utf-8",
+//         type: "POST",
+//         data :JSON.stringify({"username":username}),
+//         url: "http://"+server_info.ipPort+"/twin/agora/rtm/get/token",
+//         success: function(backData){
+//             console.log("getRTMToken backInfo : ",backData)
+//             backData = eval(   backData  );
+//             if(backData.code != 200){
+//                 return alert("ajax req back data err");
+//             }
+//
+//             options.rtm_user.token = backData.data;
+//         }
+//     });
+// }
+//
+// let getRTCToken = function(username,channel){
+//     if (!username){
+//         return alert("username empty");
+//     }
+//     console.log("start getRTCToken:");
+//     $.ajax({
+//         headers: {
+//             "X-Source-Type": server_info.header_X_Source_Type,
+//             "X-Project-Id": server_info.header_X_Project_Id,
+//             "X-Access": server_info.header_X_Access,
+//         },
+//         contentType: "application/json;charset=utf-8",
+//         type: "POST",
+//         data :JSON.stringify({"username":username,"channel":channel}),
+//         url: "http://"+server_info.ipPort+"/twin/agora/rtc/get/token",
+//         success: function(backData){
+//             console.log("getRTCToken backInfo : ",backData)
+//             backData = eval(   backData  );
+//             if(backData.code != 200){
+//                 return alert("ajax req back data err");
+//             }
+//
+//             options.rtc_user.token = backData.data;
+//             initRtcPre();
+//         }
+//     });
+// }
+
+//
+//
+// //将截图后图片 推送到服务端 ，服务端返回图片的URL，再通过RTM推送到对端
+// let request_service = function (imgObj){
+//     console.log("request_service imgObj:",imgObj);
+//
+//     $.ajax({
+//         headers: get_request_server_comm_header(),
+//         type: "POST",
+//         data :{"stream":imgObj.src},
+//         url: "http://"+server_info.ipPort+"/file/upload/img/one/stream/base64",
+//         success: function(backData){
+//             // alert("ok");
+//             console.log("backData:",backData);
+//             backData = eval(   backData  );
+//             if(backData.code != 200){
+//                 return alert("ajax req back data err");
+//             }
+//
+//             var r= Math.random();
+//             var url = "http://"+server_info.ipPort+"/"+backData.data.local_url + "?r="+r;
+//             console.log("url:",url);
+//
+//             rtm.channel.sendMessage({ text: url }).then(() => {
+//                 document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)
+//             });
+//
+//         }
+//     });
+// }

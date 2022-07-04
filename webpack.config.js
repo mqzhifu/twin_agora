@@ -9,10 +9,11 @@ module.exports = {
     devServer: {
         // compress: true,
         // host : "192.168.11.38",
+        // contentBase: path.resolve(__dirname, 'dist'),
         port: 9000,
         hot: true,
-        // contentBase: path.resolve(__dirname, 'dist'),
         contentBase: __dirname,
     },
     mode:"development",
 };
+
