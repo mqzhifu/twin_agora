@@ -39,6 +39,10 @@ let options = {
         token : "",
         uid: 22222,
     },
+    rtc_local_video_width:"640px",
+    rtc_local_video_height:"480px",
+    rtc_remote_video_width:"640px",
+    rtc_remote_video_height:"480px",
     rtm_user :{
         uid : 22222,
         token: ""
@@ -86,8 +90,8 @@ let initRtcPre = function(){
             // Specify the ID of the DIV container. You can use the uid of the remote user.
             remotePlayerContainer.id = user.uid.toString();
             remotePlayerContainer.textContent = "Remote user " + user.uid.toString();
-            remotePlayerContainer.style.width = "640px";
-            remotePlayerContainer.style.height = "480px";
+            remotePlayerContainer.style.width = options.rtc_remote_video_width;
+            remotePlayerContainer.style.height = options.rtc_remote_video_width;
             document.body.append(remotePlayerContainer);
 
             // Play the remote video track.
@@ -136,8 +140,8 @@ let initRtc = function (){
         // Specify the ID of the DIV container. You can use the uid of the local user.
         localPlayerContainer.id = options.uid;
         localPlayerContainer.textContent = "Local user " + options.rtc_user.uid;
-        localPlayerContainer.style.width = "640px";
-        localPlayerContainer.style.height = "480px";
+        localPlayerContainer.style.width = options.rtc_local_video_width;
+        localPlayerContainer.style.height = options.rtc_local_video_height;
         document.body.append(localPlayerContainer);
 
         // Play the local video track.
