@@ -37,28 +37,30 @@ let options = {
     channel: "ckck",
     rtc_user:{
         token : "",
-        uid: "test_user",
+        uid: 22222,
     },
     rtm_user :{
-        uid : "test_user",
+        uid : 22222,
         token: ""
     },
 }
 let getRTCTokenCallback = function(data){
+    console.log("getRTCTokenCallback");
     options.rtc_user.token = data;
     initRtcPre();
 }
 
 let getRTMTokenCallback = function(data){
+    console.log("getRTMTokenCallback");
     options.rtm_user.token = data;
 }
 
 let initPre = function(){
 
-    var data = {"username":options.rtm_user.uid};
+    var data = {"username":options.rtm_user.uid.toString()};
     request_server("/twin/agora/rtm/get/token",data,getRTMTokenCallback)
 
-    var data =  {"username":options.rtm_user.uid,"channel":options.channel}
+    var data =  {"username":options.rtm_user.uid.toString(),"channel":options.channel}
     request_server("/twin/agora/rtc/get/token",data,getRTCTokenCallback)
     // getRTMToken(options.rtm_user.uid);
     // getRTCToken(options.rtc_user.uid,options.channel);
@@ -165,7 +167,7 @@ let initRtc = function (){
 }
 
 let initRtm = function (){
-    console.log("initRtm:");
+    console.log("initRtm:"," token:",options.rtc_user.token);
 
     rtm.client = AgoraRTM.createInstance(options.appId);
     rtm.channel = rtm.client.createChannel(options.channel);
@@ -192,22 +194,22 @@ let initRtm = function (){
     }
 
     // 发送频道消息
-    document.getElementById("send_channel_message").onclick = async function () {
-
-        let channelMessage = document.getElementById("channelMessage").value.toString()
-
-        if (rtm.channel != null) {
-            await rtm.channel.sendMessage({ text: channelMessage }).then(() => {
-
-                    document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + channelMessage + " from " + rtm.channel.channelId)
-
-                }
-
-            )
-        }
-    }
+    // document.getElementById("send_channel_message").onclick = async function () {
+    //
+    //     let channelMessage = document.getElementById("channelMessage").value.toString()
+    //
+    //     if (rtm.channel != null) {
+    //         await rtm.channel.sendMessage({ text: channelMessage }).then(() => {
+    //
+    //                 document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + channelMessage + " from " + rtm.channel.channelId)
+    //
+    //             }
+    //
+    //         )
+    //     }
+    // }
 }
-
+//请求后端接口 - 公共头信息
 let get_request_server_comm_header = function(){
     return {
         "X-Source-Type": server_info.header_X_Source_Type,
@@ -215,15 +217,17 @@ let get_request_server_comm_header = function(){
         "X-Access": server_info.header_X_Access,
     }
 }
-
+//请求后端接口
 let request_server = function (uri, data,callbackFunc){
+    var url = "http://"+server_info.ipPort+uri;
+    console.log("request_server url:",url , " data:",data);
 
     $.ajax({
         headers: get_request_server_comm_header(),
         contentType: "application/json;charset=utf-8",
         type: "POST",
         data :JSON.stringify(data),
-        url: "http://"+server_info.ipPort+uri,
+        url: url,
         success: function(backData){
             console.log("request_server backInfo : ",backData)
             backData = eval(   backData  );
@@ -261,97 +265,12 @@ let screenshots = function (){
 //将截图后图片 推送到服务端 ，服务端返回图片的URL，再通过RTM推送到对端
 let screenshotsCallback = function(data){
     var r= Math.random();
-    var url = "http://"+server_info.ipPort+"/"+data.local_url + "?r="+r;
-    console.log("url:",url);
+    // var url = "http://"+server_info.ipPort+"/"+data.local_url + "?r="+r;
+    var url = data.full_local_ip_url;
+    console.log("server back img url:",url);
 
     rtm.channel.sendMessage({ text: url }).then(() => {
+        console.log("send unity msg.")
         document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)
     });
 }
-
-
-// let getRTMToken = function(username){
-//     if (!username){
-//         return alert("username empty");
-//     }
-//     console.log("start getRTMToken:");
-//     $.ajax({
-//         headers: {
-//             "X-Source-Type": server_info.header_X_Source_Type,
-//             "X-Project-Id": server_info.header_X_Project_Id,
-//             "X-Access": server_info.header_X_Access,
-//         },
-//         contentType: "application/json;charset=utf-8",
-//         type: "POST",
-//         data :JSON.stringify({"username":username}),
-//         url: "http://"+server_info.ipPort+"/twin/agora/rtm/get/token",
-//         success: function(backData){
-//             console.log("getRTMToken backInfo : ",backData)
-//             backData = eval(   backData  );
-//             if(backData.code != 200){
-//                 return alert("ajax req back data err");
-//             }
-//
-//             options.rtm_user.token = backData.data;
-//         }
-//     });
-// }
-//
-// let getRTCToken = function(username,channel){
-//     if (!username){
-//         return alert("username empty");
-//     }
-//     console.log("start getRTCToken:");
-//     $.ajax({
-//         headers: {
-//             "X-Source-Type": server_info.header_X_Source_Type,
-//             "X-Project-Id": server_info.header_X_Project_Id,
-//             "X-Access": server_info.header_X_Access,
-//         },
-//         contentType: "application/json;charset=utf-8",
-//         type: "POST",
-//         data :JSON.stringify({"username":username,"channel":channel}),
-//         url: "http://"+server_info.ipPort+"/twin/agora/rtc/get/token",
-//         success: function(backData){
-//             console.log("getRTCToken backInfo : ",backData)
-//             backData = eval(   backData  );
-//             if(backData.code != 200){
-//                 return alert("ajax req back data err");
-//             }
-//
-//             options.rtc_user.token = backData.data;
-//             initRtcPre();
-//         }
-//     });
-// }
-
-//
-//
-// //将截图后图片 推送到服务端 ，服务端返回图片的URL，再通过RTM推送到对端
-// let request_service = function (imgObj){
-//     console.log("request_service imgObj:",imgObj);
-//
-//     $.ajax({
-//         headers: get_request_server_comm_header(),
-//         type: "POST",
-//         data :{"stream":imgObj.src},
-//         url: "http://"+server_info.ipPort+"/file/upload/img/one/stream/base64",
-//         success: function(backData){
-//             // alert("ok");
-//             console.log("backData:",backData);
-//             backData = eval(   backData  );
-//             if(backData.code != 200){
-//                 return alert("ajax req back data err");
-//             }
-//
-//             var r= Math.random();
-//             var url = "http://"+server_info.ipPort+"/"+backData.data.local_url + "?r="+r;
-//             console.log("url:",url);
-//
-//             rtm.channel.sendMessage({ text: url }).then(() => {
-//                 document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)
-//             });
-//
-//         }
-//     });
-// }
