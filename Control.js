@@ -131,9 +131,12 @@ let initRtcPre = function(){
         // Listen for the "user-unpublished" event
         rtc.client.on("user-unpublished", user => {
             // Get the dynamically created DIV container.
-            const remotePlayerContainer = document.getElementById(user.uid);
+            // const remotePlayerContainer = document.getElementById(user.uid);
             // Destroy the container.
-            remotePlayerContainer.remove();
+            // remotePlayerContainer.remove();
+            rtc.remoteVideoTrack = null;
+            document.getElementById("remote_video").innerHTML="";
+            document.getElementById("bnt_send_screenshots").style.display = "none";
         });
     });
 }
@@ -161,20 +164,21 @@ let initRtc = function (){
 
         console.log("local AudioTrack json success, publish success!");
     };
-
+    //点击按钮：自己离开
     document.getElementById("rtc_leave").onclick = async function () {
         // Destroy the local audio and video tracks.
         rtc.localAudioTrack.close();
-        rtc.localVideoTrack.close();
+        // rtc.localVideoTrack.close();
+
+        // // Traverse all remote users.
+        // rtc.client.remoteUsers.forEach(user => {
+        //     // Destroy the dynamically created DIV containers.
+        //     const playerContainer = document.getElementById(user.uid);
+        //     playerContainer && playerContainer.remove();
+        // });
         rtc.remoteVideoTrack = null;
-        // Traverse all remote users.
-        rtc.client.remoteUsers.forEach(user => {
-            // Destroy the dynamically created DIV containers.
-            // const playerContainer = document.getElementById(user.uid);
-            // playerContainer && playerContainer.remove();
-            document.getElementById("remote_video").innerHTML="";
-            document.getElementById("bnt_send_screenshots").style.display = "none";
-        });
+        document.getElementById("remote_video").innerHTML="";
+        document.getElementById("bnt_send_screenshots").style.display = "none";
 
         // Leave the channel.
         await rtc.client.leave();
