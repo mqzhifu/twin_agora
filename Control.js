@@ -1,7 +1,7 @@
 import AgoraRTM from "agora-rtm-sdk";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import * as Server from './Server'
-//此文件：核心控制
+//此文件：核心控制文件
 
 //输出函数
 let show = function(msg){
@@ -27,8 +27,8 @@ let rtm = {
     channel : null,
 }
 //rtm rtc 公共配置信息
-let options = {
-    appId: "8ff429463a234c7bae327d74941a5956",
+var options = {
+    appId: AGORA.APP_ID,
     channel: "ckck",
     rtc_user:{
         token : "",
@@ -45,6 +45,7 @@ let options = {
 }
 //前置 - 初始化，主要是获取rtm rtc 的token ，为后续 初始化使用
 let initPre = function(){
+    // console.log("PPPPPPPP:",APP_ID);
     // options_info
     // $("#appId").html(options.appId);
     // $("#channel_name").html(options.channel);
@@ -275,7 +276,12 @@ let screenshots = function (){
 let screenshotsCallback = function(data){
     var r= Math.random();
     // var url = "http://"+server_info.ipPort+"/"+data.local_url + "?r="+r;
-    var url = data.full_local_ip_url;
+    if (process.env.NODE_ENV == "development"){
+        var url = data.full_local_ip_url;
+    }else{
+        var url = data.full_local_domain_url;
+    }
+
     console.log("server back img url:",url);
 
 
@@ -295,7 +301,9 @@ function send_server(url){
     }
     console.log("start send url message:",url);
     // console.log("url:",url)
-    rtm.channel.sendMessage({ text: url }).then(() => {
+    var now = new Date().getTime();
+    var msg = url + "," + now.toString();
+    rtm.channel.sendMessage({ text: msg }).then(() => {
         console.log("send unity msg finish.")
         document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)
     });

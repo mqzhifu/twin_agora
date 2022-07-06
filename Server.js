@@ -5,11 +5,12 @@ export {
 }
 
 // 服务器信息
-const configInfo = {
+let configInfo = {
     //后端公共HTTP接口-头信息
     header_X_Source_Type: "11",
-    header_X_Project_Id : "6",
-    header_X_Access     : "imzgoframe",
+    header_X_Project_Id : "12",
+    header_X_Access     : "imtwinagora",
+    Http_Protocol       : "http",
     ipPort              : "127.0.0.1:1111",
     // ipPort              : "192.168.11.38:1111",
 }
@@ -24,7 +25,7 @@ let get_request_server_comm_header = function(){
 }
 //请求后端接口
 let request = function (uri, data,callbackFunc){
-    var url = "http://"+configInfo.ipPort+uri;
+    var url = configInfo.Http_Protocol+"://"+configInfo.ipPort+uri;
     console.log("request_server url:",url , " data:",data);
 
     $.ajax({
