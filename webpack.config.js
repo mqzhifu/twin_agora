@@ -7,6 +7,7 @@ module.exports = {
         path: path.resolve(__dirname, "./dist"),
     },
     devServer: {
+        // https: true,
         // compress: true,
         // host : "192.168.11.38",
         // contentBase: path.resolve(__dirname, 'dist'),

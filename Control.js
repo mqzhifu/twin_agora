@@ -17,6 +17,7 @@ let server_info = {
     header_X_Source_Type: "11",
     header_X_Project_Id : "6",
     header_X_Access     : "imzgoframe",
+    // ipPort              : "192.168.11.38:1111",
     ipPort              : "127.0.0.1:1111",
 }
 
