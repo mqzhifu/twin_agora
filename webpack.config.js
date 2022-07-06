@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-    entry: "./basicVideoCall.js",
+    entry: "./entry.js",
     output: {
         filename: "bundle.js",
         path: path.resolve(__dirname, "./dist"),
