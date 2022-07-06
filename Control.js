@@ -25,11 +25,11 @@ let rtc = {
     client: null,
     localAudioTrack: null,
     localVideoTrack: null,
-    remoteVideoTrack:null,
+    remoteVideoTrack:null,//给截图使用
 };
 
 let rtm = {
-    client : null,
+    client  : null,
     channel : null,
 }
 
@@ -40,23 +40,26 @@ let options = {
         token : "",
         uid: 22222,
     },
-    rtc_local_video_width:"640px",
-    rtc_local_video_height:"480px",
-    rtc_remote_video_width:"640px",
-    rtc_remote_video_height:"480px",
+    rtc_local_video_width:"1600",
+    rtc_local_video_height:"600",
+    rtc_remote_video_width:"1600",
+    rtc_remote_video_height:"600",
     rtm_user :{
-        uid : 22222,
+        uid : "22222",
         token: ""
     },
 }
+
+
+
 let getRTCTokenCallback = function(data){
-    console.log("getRTCTokenCallback");
+    // console.log("getRTCTokenCallback");
     options.rtc_user.token = data;
     initRtcPre();
 }
 
 let getRTMTokenCallback = function(data){
-    console.log("getRTMTokenCallback");
+    // console.log("getRTMTokenCallback");
     options.rtm_user.token = data;
 }
 
@@ -72,11 +75,11 @@ let initPre = function(){
 }
 
 let initRtcPre = function(){
-    console.log("initRtcPre:");
+    console.log("initRtcPre : createClient , ListeningEvent : user-published , user-unpublished. ");
     // Create an AgoraRTCClient object.
     rtc.client = AgoraRTC.createClient({mode: "rtc", codec: "vp8"});
 
-    // Listen for the "user-published" event, from which you can get an AgoraRTCRemoteUser object.
+    // 监听 "user-published" 事件, 获取远程用户对象 AgoraRTCRemoteUser.
     rtc.client.on("user-published", async (user, mediaType) => {
         // Subscribe to the remote user when the SDK triggers the "user-published" event
         await rtc.client.subscribe(user, mediaType);
@@ -87,16 +90,16 @@ let initRtcPre = function(){
             const remoteVideoTrack = user.videoTrack;
             rtc.remoteVideoTrack = remoteVideoTrack;//给外部使用
             // Dynamically create a container in the form of a DIV element for playing the remote video track.
-            const remotePlayerContainer = document.createElement("div");
+            // const remotePlayerContainer = document.createElement("div");
+            var remotePlayerContainer =  document.createElement("remote_video");
             // Specify the ID of the DIV container. You can use the uid of the remote user.
             remotePlayerContainer.id = user.uid.toString();
             remotePlayerContainer.textContent = "Remote user " + user.uid.toString();
-            remotePlayerContainer.style.width = options.rtc_remote_video_width;
-            remotePlayerContainer.style.height = options.rtc_remote_video_width;
+            remotePlayerContainer.style.width = options.rtc_remote_video_width + "px";
+            remotePlayerContainer.style.height = options.rtc_remote_video_height + "px";
             document.body.append(remotePlayerContainer);
 
-            // Play the remote video track.
-            // Pass the DIV container and the SDK dynamically creates a player in the container for playing the remote video track.
+            // 在DIV容器内，开始播放远程的视频流
             remoteVideoTrack.play(remotePlayerContainer);
 
             // setTimeout(aaa,5000);
@@ -123,44 +126,41 @@ let initRtcPre = function(){
 
 
 let initRtc = function (){
-    console.log("initRtc :"," token:",options.rtc_user.token);
+    console.log("initRtc :"," token:",options.rtc_user.token , " ListeningEvent:join , leave. ");
 
-    document.getElementById("join").onclick = async function () {
+    document.getElementById("rtc_join").onclick = async function () {
         // Join an RTC channel.
 
         console.log("rtc jon :",options.rtc_user)
         await rtc.client.join(options.appId, options.channel, options.rtc_user.token, options.rtc_user.uid);
-        // Create a local audio track from the audio sampled by a microphone.
-        rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-        // Create a local video track from the video captured by a camera.
-        rtc.localVideoTrack = await AgoraRTC.createCameraVideoTrack();
-        // Publish the local audio and video tracks to the RTC channel.
-        await rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack]);
-        // Dynamically create a container in the form of a DIV element for playing the local video track.
-        const localPlayerContainer = document.createElement("div");
-        // Specify the ID of the DIV container. You can use the uid of the local user.
-        localPlayerContainer.id = options.uid;
-        localPlayerContainer.textContent = "Local user " + options.rtc_user.uid;
-        localPlayerContainer.style.width = options.rtc_local_video_width;
-        localPlayerContainer.style.height = options.rtc_local_video_height;
-        document.body.append(localPlayerContainer);
+        rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack(); //创建一个：本地 音频追踪 -> 通过麦克风，获取音频采样
+        // rtc.localVideoTrack = await AgoraRTC.createCameraVideoTrack();//创建一个：本地 视频追踪 -> 通过摄像头，获取音频采样
+        // await rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack]);//发布本地音频和视频到 RTC通道
+        await rtc.client.publish([rtc.localAudioTrack]);//发布本地音频-> RTC通道
+        // //创建一个DIV，用来播放本地视频
+        // const localPlayerContainer = document.createElement("div");
+        // localPlayerContainer.id = options.uid;
+        // localPlayerContainer.textContent = "Local user " + options.rtc_user.uid;
+        // localPlayerContainer.style.width = options.rtc_local_video_width + "px";
+        // localPlayerContainer.style.height = options.rtc_local_video_height + "px";
+        // document.body.append(localPlayerContainer);
+        // rtc.localVideoTrack.play(localPlayerContainer);
 
-        // Play the local video track.
-        // Pass the DIV container and the SDK dynamically creates a player in the container for playing the local video track.
-        rtc.localVideoTrack.play(localPlayerContainer);
-        console.log("publish success!");
+        console.log("local AudioTrack json success, publish success!");
     };
 
-    document.getElementById("leave").onclick = async function () {
+    document.getElementById("rtc_leave").onclick = async function () {
         // Destroy the local audio and video tracks.
         rtc.localAudioTrack.close();
         rtc.localVideoTrack.close();
-
+        rtc.remoteVideoTrack = null;
         // Traverse all remote users.
         rtc.client.remoteUsers.forEach(user => {
             // Destroy the dynamically created DIV containers.
-            const playerContainer = document.getElementById(user.uid);
-            playerContainer && playerContainer.remove();
+            // const playerContainer = document.getElementById(user.uid);
+            // playerContainer && playerContainer.remove();
+            document.getElementById("remote_video").innerHTML="";
+            document.getElementById("bnt_send_screenshots").style.display = "none";
         });
 
         // Leave the channel.
@@ -168,7 +168,27 @@ let initRtc = function (){
     };
     //给外部节点绑定点击事件(截图)
     var bnt_screenshots = document.getElementById("bnt_screenshots");
-    bnt_screenshots.addEventListener('click',screenshots);
+    // bnt_screenshots.addEventListener('click',screenshots);
+    bnt_screenshots.onclick = screenshots;
+    var cv =  document.getElementById("my_canvas");
+    cv.width = parseInt(options.rtc_remote_video_width ) / 2;
+    cv.height = parseInt( options.rtc_remote_video_height) / 2;
+
+    var ctx = cv.getContext('2d');
+    // ctx.strokeRect(20,20,150,100);
+
+    // 设置字体
+    ctx.font = "12px 微软雅黑 bolder";
+    // 设置字体颜色
+    ctx.fillStyle = "#955f17";
+    ctx.textAlign = "center";
+    // 添加文字和位置
+    ctx.fillText("此处为截图", 60, 40);
+
+
+    var remote_video_div =  document.getElementById("remote_video");
+    remote_video_div.style.width = ( parseInt(options.rtc_remote_video_width ) / 2) + "px";
+    remote_video_div.style.height =( parseInt(options.rtc_remote_video_height ) / 2) + "px";
 }
 
 let initRtm = function (){
@@ -179,25 +199,24 @@ let initRtm = function (){
 
     $("#appId").html(options.appId);
     $("#channel_name").html(options.channel);
-    document.getElementById("userID").value = options.rtm_user.uid;
-    // 按钮逻辑
-    // 登录
-    document.getElementById("login").onclick = async function () {
-        options.rtm_user.uid = document.getElementById("userID").value.toString()
-        console.log(options.rtm_user)
-        await rtm.client.login(options.rtm_user)
-    }
-
-
-    // 创建并加入频道
-    document.getElementById("rtm_join").onclick = async function () {
-        // Channel event listeners
-        // Display channel messages
-        await rtm.channel.join().then (() => {
-            document.getElementById("log").appendChild(document.createElement('div')).append("You have successfully joined channel " + rtm.channel.channelId)
-        })
-    }
-
+    // document.getElementById("userID").value = options.rtm_user.uid;
+    // // 登录
+    // document.getElementById("login").onclick = async function () {
+    //     options.rtm_user.uid = document.getElementById("userID").value.toString()
+    //     console.log(options.rtm_user)
+    //     await rtm.client.login(options.rtm_user)
+    // }
+    //
+    //
+    // // 创建并加入频道
+    // document.getElementById("rtm_join").onclick = async function () {
+    //     // Channel event listeners
+    //     // Display channel messages
+    //     await rtm.channel.join().then (() => {
+    //         document.getElementById("log").appendChild(document.createElement('div')).append("You have successfully joined channel " + rtm.channel.channelId)
+    //     })
+    // }
+    //
     // 发送频道消息
     // document.getElementById("send_channel_message").onclick = async function () {
     //
@@ -213,6 +232,19 @@ let initRtm = function (){
     //         )
     //     }
     // }
+
+    autoLoginJoinChannel();
+
+}
+//RTM - 页面初始化后，自动登陆并加入渠道
+async function autoLoginJoinChannel(){
+    console.log("rtm login:",options.rtm_user);
+    await  rtm.client.login(options.rtm_user).then(() => {
+        document.getElementById("log").appendChild(document.createElement('div')).append("login finish.");
+        rtm.channel.join().then (() => {
+            document.getElementById("log").appendChild(document.createElement('div')).append("You have successfully joined channel " + rtm.channel.channelId)
+        })
+    });
 }
 //请求后端接口 - 公共头信息
 let get_request_server_comm_header = function(){
@@ -252,6 +284,9 @@ let request_server = function (uri, data,callbackFunc){
 
 //截取 - 对方视频 - 图片
 let screenshots = function (){
+    if (!rtc.remoteVideoTrack){
+        return alert("对端还未接入视频，请等待...");
+    }
     var videoFrameImgData = rtc.remoteVideoTrack.getCurrentFrameData();
     // var canvas = document.createElement('canvas');
     var  canvas = document.getElementById("my_canvas");
@@ -274,8 +309,15 @@ let screenshotsCallback = function(data){
     var url = data.full_local_ip_url;
     console.log("server back img url:",url);
 
-    rtm.channel.sendMessage({ text: url }).then(() => {
-        console.log("send unity msg.")
-        document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)
-    });
+    var bnt_send_screenshots_obj = document.getElementById("bnt_send_screenshots");
+    bnt_send_screenshots_obj.onclick = null;
+    bnt_send_screenshots_obj.onclick = function(url){
+        rtm.channel.sendMessage({ text: url }).then(() => {
+            console.log("send unity msg.")
+            document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)
+        });
+    }
+    bnt_send_screenshots_obj.style.display = "block";
+
+
 }
