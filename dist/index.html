@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Agora RTC RTM DEMO</title>
+    <!--
+    This line is used to refer to the bundle.js file packaged by webpack. A sample webpack configuration is shown in the later step of running your app.
+    -->
+    <script src="./jquery.min.js"></script>
+<!--    <script src="./bundle.js"></script>-->
+    <script src="./bundle.js"></script>
+    <style>
+        table
+        {
+            border-collapse: collapse;
+            /*margin: 0 auto;*/
+            text-align: left;
+        }
+        table td, table th
+        {
+            border: 1px solid #cad9ea;
+            color: #666;
+            height: 30px;
+        }
+        table thead th
+        {
+            background-color: #CCE8EB;
+            width: 100px;
+        }
+        table tr:nth-child(odd)
+        {
+            background: #fff;
+        }
+        table tr:nth-child(even) {
+            background: #F5FAFA;
+        }
+
+        .portlet {
+            border:1px solid #ff0000;
+            margin:5px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="row">
+    <div><h2 class="left-align">RTC video</h2></div>
+    <div>
+        <button type="button" id="rtc_join">加入视频聊天</button>
+        <button type="button" id="rtc_leave">离开</button>
+    </div>
+    <div></div>
+</div>
+<br/>
+<div class="row">
+    <div>
+        <div id="remote_video" style="border:1px solid">此处为对端视频</div>
+    </div>
+    <br/>
+    <div>
+        <canvas id="my_canvas" style="border:1px solid"></canvas>
+        <input type="button" id="bnt_screenshots" value="截图"/>
+
+        <input type="button" id="bnt_send_screenshots" value="发送截图" style="display: none"/>
+    </div>
+
+</div>
+<br/>
+<div class="row">
+    <div style="float: left">
+        <table id="options_info">
+
+        </table>
+    </div>
+    <div>
+
+        <table id="server_config">
+
+        </table>
+    </div>
+</div>
+
+<!--<div class="row">-->
+<!--<div><h2 class="left-align">RTM 云信令</h2></div>-->
+<!--<form id="loginForm">-->
+<!--    <div class="col" style="min-width: 433px; max-width: 443px">-->
+<!--        <div class="card" style="margin-top: 0px; margin-bottom: 0px;">-->
+<!--            <div class="row card-content" style="margin-bottom: 0px; margin-top: 10px;">-->
+<!--                <div class="input-field">-->
+<!--                    <label>User ID~to</label>-->
+<!--                    <input type="text" placeholder="User ID" id="userID">-->
+<!--                </div>-->
+<!--                <div class="row">-->
+<!--                    <div>-->
+<!--                        <button type="button" id="login">登陆</button>-->
+<!--                        <button type="button" id="logout">退出</button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="input-field">-->
+<!--                    <label>Channel name: ckck</label>-->
+<!--                </div>-->
+<!--                <div class="row">-->
+<!--                    <div>-->
+<!--                        <button type="button" id="rtm_join">加入</button>-->
+<!--                        <button type="button" id="rtm_leave">离开</button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="input-field channel-padding">-->
+<!--                    <label>Channel Message</label>-->
+<!--                    <input type="text" placeholder="channel message" id="channelMessage">-->
+<!--                    <button type="button" id="send_channel_message">SEND</button>-->
+<!--                </div>-->
+<!--                <div class="input-field">-->
+<!--                    <label>Peer Id</label>-->
+<!--                    <input type="text" placeholder="peer id" id="peerId">-->
+<!--                </div>-->
+<!--                <div class="input-field channel-padding">-->
+<!--                    <label>Peer Message</label>-->
+<!--                    <input type="text" placeholder="peer message" id="peerMessage">-->
+<!--                    <button type="button" id="send_peer_message">SEND</button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--</form>-->
+<!--</div>-->
+<div>RTM-log:<span id="log"></span></div>
+
+
+
+
+</body>
+</html>
