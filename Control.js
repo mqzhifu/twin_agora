@@ -292,7 +292,7 @@ let screenshotsCallback = function(data){
     bnt_send_screenshots_obj.onclick = function(){
         send_server(url);
     }
-    bnt_send_screenshots_obj.style.display = "block";
+    bnt_send_screenshots_obj.style.display = "";
 
 
 }
