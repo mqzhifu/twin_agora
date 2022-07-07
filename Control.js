@@ -29,17 +29,17 @@ let rtm = {
 //rtm rtc 公共配置信息
 var options = {
     appId: AGORA.APP_ID,
-    channel: "ckck",
+    channel: AGORA.CHANNEL,
     rtc_user:{
         token : "",
-        uid: 22222,
+        uid: AGORA.RTC_USER_ID,
     },
     // rtc_local_video_width:"1600",
     // rtc_local_video_height:"600",
-    rtc_remote_video_width:"1600",
-    rtc_remote_video_height:"600",
+    rtc_remote_video_width:AGORA.RTC_REMOTE_VIDEO_WIDTH,
+    rtc_remote_video_height:AGORA.RTC_REMOTE_VIDEO_HEIGHT,
     rtm_user :{
-        uid : "22222",
+        uid : AGORA.RTM_USER_ID,
         token: ""
     },
 }
