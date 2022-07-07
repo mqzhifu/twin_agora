@@ -28,18 +28,18 @@ let rtm = {
 }
 //rtm rtc 公共配置信息
 var options = {
-    appId: AGORA.APP_ID,
-    channel: AGORA.CHANNEL,
+    appId: WEBPACK_AGORA.APP_ID,
+    channel: WEBPACK_AGORA.CHANNEL,
     rtc_user:{
         token : "",
-        uid: AGORA.RTC_USER_ID,
+        uid: WEBPACK_AGORA.RTC_USER_ID,
     },
     // rtc_local_video_width:"1600",
     // rtc_local_video_height:"600",
-    rtc_remote_video_width:AGORA.RTC_REMOTE_VIDEO_WIDTH,
-    rtc_remote_video_height:AGORA.RTC_REMOTE_VIDEO_HEIGHT,
+    rtc_remote_video_width:WEBPACK_AGORA.RTC_REMOTE_VIDEO_WIDTH,
+    rtc_remote_video_height:WEBPACK_AGORA.RTC_REMOTE_VIDEO_HEIGHT,
     rtm_user :{
-        uid : AGORA.RTM_USER_ID,
+        uid : WEBPACK_AGORA.RTM_USER_ID,
         token: ""
     },
 }
@@ -299,10 +299,10 @@ function send_server(url){
     if (!url){
         return alert("url为空，请先截图，再发送...");
     }
-    console.log("start send url message:",url);
-    // console.log("url:",url)
+
     var now = new Date().getTime();
     var msg = url + "," + now.toString();
+    console.log("start send message:",msg);
     rtm.channel.sendMessage({ text: msg }).then(() => {
         console.log("send unity msg finish.")
         document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)

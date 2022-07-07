@@ -5,8 +5,8 @@
   "main": "basicVideoCall.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.config.js",
-    "start:dev": "webpack serve --open --config webpack.config.js"
+    "build": "webpack --config webpack.config.prod.js",
+    "dev": "webpack serve --open --config webpack.config.dev.js"
   },
   "private": true,
   "dependencies": {

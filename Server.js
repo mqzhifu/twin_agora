@@ -7,11 +7,11 @@ export {
 // 服务器信息
 let configInfo = {
     //后端公共HTTP接口-头信息
-    header_X_Source_Type: "11",
-    header_X_Project_Id : "12",
-    header_X_Access     : "imtwinagora",
-    Http_Protocol       : "http",
-    ipPort              : "127.0.0.1:1111",
+    header_X_Source_Type: WEBPACK_SERVER.Header_X_Source_Type,
+    header_X_Project_Id : WEBPACK_SERVER.Header_X_Project_Id,
+    header_X_Access     :WEBPACK_SERVER.Header_X_Access,
+    Http_Protocol       : WEBPACK_SERVER.Http_Protocol,
+    ipPort              : WEBPACK_SERVER.IpPort,
     // ipPort              : "192.168.11.38:1111",
 }
 
