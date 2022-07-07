@@ -14,6 +14,11 @@ export {
     initRtm,
     initPre,
 }
+//工具栏
+var canvasTools = null;
+//当前页面是否已经有截图了
+var screenshotsExist = null;
+
 //rtc公共变量
 let rtc = {
     client: null,
@@ -140,6 +145,8 @@ let initRtcPre = function(){
             rtc.remoteVideoTrack = null;
             document.getElementById("remote_video").innerHTML="";
             document.getElementById("bnt_send_screenshots").style.display = "none";
+
+            closeCanvasTools();
         });
     });
 }
@@ -183,6 +190,7 @@ let initRtc = function (){
         document.getElementById("remote_video").innerHTML="";
         document.getElementById("bnt_send_screenshots").style.display = "none";
 
+        closeCanvasTools();
         // Leave the channel.
         await rtc.client.leave();
     };
@@ -257,50 +265,58 @@ async function autoLoginJoinChannel(){
 
 //截取 - 对方视频 - 图片
 let screenshots = function (){
+    screenshotsExist = 1;//标记下：已经有截图的图片了
+
     if (!rtc.remoteVideoTrack){
         return alert("对端还未接入视频，请等待...");
     }
     var videoFrameImgData = rtc.remoteVideoTrack.getCurrentFrameData();
     var  canvas = document.getElementById("my_canvas");
     var ctx = canvas.getContext('2d');
+    // 这里先注释掉，暂时不要改变大小
     // canvas.width = videoFrameImgData.width;
     // canvas.height = videoFrameImgData.height;
     ctx.putImageData(videoFrameImgData, 0, 0);
 
-    var myImg = new Image();
-    myImg.src = canvas.toDataURL("image/jpeg",0.7);
-
-    // request_service(myImg);
-    var data = {"stream":myImg.src}
-    Server.request("/file/upload/img/one/stream/base64",data,screenshotsCallback);
+    //给发送截图 按钮：注册点击事件
+    var bnt_send_screenshots_obj = document.getElementById("bnt_send_screenshots");
+    //先给按钮点击事件置空，防止重复添加事件
+    bnt_send_screenshots_obj.onclick = null;
+    bnt_send_screenshots_obj.onclick = function(){
+        //将截图发送到服务端
+        send_server();
+    }
+    //打开：发送截图 按钮
+    bnt_send_screenshots_obj.style.display = "";
+    //打开涂雅工具条
+    openCanvasTools();
 }
-//将截图后图片 推送到服务端 ，服务端返回图片的URL，再通过RTM推送到对端
+//打开涂雅工具条
+let openCanvasTools = function(){
+    var canvas = document.getElementById("my_canvas");
+    canvasTools = new CanvasTools(canvas, {
+        container : document.getElementById('myCanvasTools')
+    });
+}
+
+let closeCanvasTools = function(){
+    if(!screenshotsExist){
+        return alert("未加入频道，也不需要关闭截图工具栏");
+    }
+
+    document.getElementById('myCanvasTools').innerHTML = "";
+    canvasTools = null;
+}
+
+//截图后发送图片到服务端，回调函数，最后，再通过RTM推送到对端
 let screenshotsCallback = function(data){
     var r= Math.random();
-    // var url = "http://"+server_info.ipPort+"/"+data.local_url + "?r="+r;
     if (process.env.NODE_ENV == "development"){
         var url = data.full_local_ip_url;
     }else{
         var url = data.full_local_domain_url;
     }
-
-    console.log("server back img url:",url);
-
-
-    var bnt_send_screenshots_obj = document.getElementById("bnt_send_screenshots");
-    bnt_send_screenshots_obj.onclick = null;
-    bnt_send_screenshots_obj.onclick = function(){
-        send_server(url);
-    }
-    bnt_send_screenshots_obj.style.display = "";
-
-
-}
-
-function send_server(url){
-    if (!url){
-        return alert("url为空，请先截图，再发送...");
-    }
+    url += "?r="+r;//加随机数，防止缓存
 
     var now = new Date().getTime();
     var msg = url + "," + now.toString();
@@ -309,4 +325,20 @@ function send_server(url){
         console.log("send unity msg finish.")
         document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + url + " from " + rtm.channel.channelId)
     });
+
+    console.log("server back img url:",url);
+}
+
+function send_server(){
+    if (!screenshotsExist){
+        return alert("请先截图，再发送...");
+    }
+    //从canvas中读取图片流
+    var  canvas = document.getElementById("my_canvas");
+    var myImg = new Image();
+    myImg.src = canvas.toDataURL("image/jpeg",0.7);
+    //将图片流传到server端
+    var data = {"stream":myImg.src}
+    Server.request("/file/upload/img/one/stream/base64",data,screenshotsCallback);
+
 }

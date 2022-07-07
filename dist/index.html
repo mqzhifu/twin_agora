@@ -9,6 +9,8 @@
     <script src="./jquery.min.js"></script>
 <!--    <script src="./bundle.js"></script>-->
     <script src="./bundle.js"></script>
+    <link rel="stylesheet" href="./canvastools.min.css">
+
     <style>
         table
         {
@@ -45,6 +47,17 @@
 </head>
 <body>
 
+<!--<canvas id="myCanvas" width="800" height="600"></canvas>-->
+
+
+<!--https://smohan.net/lab/canvastools-->
+<script src="./canvastools.min.js"></script>
+<!--<script>-->
+<!--    var canvasTools = new CanvasTools(document.getElementById('myCanvas'), {-->
+<!--        container : document.getElementById('myCanvasTools')-->
+<!--    })-->
+<!--</script>-->
+
 <div class="row">
     <div><h2 class="left-align">RTC video</h2></div>
     <div>
@@ -62,7 +75,7 @@
     <div>
         <canvas id="my_canvas" style="border:1px solid"></canvas>
         <div><input type="button" id="bnt_screenshots" value="截图"/> <input type="button" id="bnt_send_screenshots" value="发送截图" style="display:none"/>  </div>
-
+        <div id="myCanvasTools"></div>
     </div>
 
 </div>
