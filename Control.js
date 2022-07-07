@@ -61,13 +61,13 @@ let getRTCTokenCallback = function(data){
     // console.log("getRTCTokenCallback");
     options.rtc_user.token = data;
     initRtcPre();
-    Control.initRtc();//初始化RTC
+    initRtc();//初始化RTC
 }
 //前置 - 初始化 ， 获取rtm token 回调函数
 let getRTMTokenCallback = function(data){
     // console.log("getRTMTokenCallback");
     options.rtm_user.token = data;
-    Control.initRtm();//初始化RTM
+    initRtm();//初始化RTM
 }
 
 function getVideoSize (direction){
@@ -90,7 +90,7 @@ function getVideoSizePlusPX (direction){
 
 //前置 - 初始化 ，RTC ， 获取 摄像头、喇叭，创建监听事件等
 let initRtcPre = function(){
-    console.log("initRtcPre : createClient , ListeningEvent : user-published , user-unpublished. ");
+    console.log("initRtcPre ~ : createClient , ListeningEvent : user-published , user-unpublished. ");
     // Create an AgoraRTCClient object.
     rtc.client = AgoraRTC.createClient({mode: "rtc", codec: "vp8"});
 
@@ -145,7 +145,7 @@ let initRtcPre = function(){
 }
 //页面加载完成后，开始初始化RTC ,1:监听按钮事件 2:截图事件监听
 let initRtc = function (){
-    console.log("initRtc :"," token:",options.rtc_user.token , " ListeningEvent:join , leave. ");
+    console.log("initRtc ~ :"," token:",options.rtc_user.token , " ListeningEvent:join , leave. ");
 
     document.getElementById("rtc_join").onclick = async function () {
         // Join an RTC channel.
@@ -235,7 +235,7 @@ let initRtm = function (){
 
 
 
-    console.log("initRtm:"," token:",options.rtc_user.token);
+    console.log("initRtm ~:"," token:",options.rtc_user.token);
 
     rtm.client = AgoraRTM.createInstance(options.appId);
     rtm.channel = rtm.client.createChannel(options.channel);
