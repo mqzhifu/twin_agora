@@ -61,11 +61,13 @@ let getRTCTokenCallback = function(data){
     // console.log("getRTCTokenCallback");
     options.rtc_user.token = data;
     initRtcPre();
+    Control.initRtc();//初始化RTC
 }
 //前置 - 初始化 ， 获取rtm token 回调函数
 let getRTMTokenCallback = function(data){
     // console.log("getRTMTokenCallback");
     options.rtm_user.token = data;
+    Control.initRtm();//初始化RTM
 }
 
 function getVideoSize (direction){
