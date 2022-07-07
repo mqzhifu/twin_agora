@@ -235,7 +235,7 @@ let initRtm = function (){
 
 
 
-    console.log("initRtm ~:"," token:",options.rtc_user.token);
+    console.log("initRtm , "," token:",options.rtm_user.token);
 
     rtm.client = AgoraRTM.createInstance(options.appId);
     rtm.channel = rtm.client.createChannel(options.channel);
