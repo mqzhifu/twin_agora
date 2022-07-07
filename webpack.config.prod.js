@@ -16,8 +16,8 @@ module.exports = {
             // APP_ID: "8ff429463a234c7bae327d74941a5956",
             WEBPACK_AGORA : JSON.stringify( {
                 "APP_ID": "8ff429463a234c7bae327d74941a5956",
-                "RTC_USER_ID":7777,
-                "RTM_USER_ID":"7777",
+                "RTC_USER_ID":77777,
+                "RTM_USER_ID":"77777",
                 "RTC_REMOTE_VIDEO_WIDTH" :"1600" ,
                 "RTC_REMOTE_VIDEO_HEIGHT":"800",
                 "CHANNEL":"ckck",}),
