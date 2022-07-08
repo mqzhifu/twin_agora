@@ -9,9 +9,9 @@ let show = function(msg){
 }
 //外部导出
 export {
-    show,
-    initRtc,
-    initRtm,
+    // show,
+    // initRtc,
+    // initRtm,
     initPre,
 }
 //工具栏
@@ -50,10 +50,6 @@ var options = {
 }
 //前置 - 初始化，主要是获取rtm rtc 的token ，为后续 初始化使用
 let initPre = function(){
-    // console.log("PPPPPPPP:",APP_ID);
-    // options_info
-    // $("#appId").html(options.appId);
-    // $("#channel_name").html(options.channel);
 
     var data = {"username":options.rtm_user.uid.toString()};
     Server.request("/twin/agora/rtm/get/token",data,getRTMTokenCallback)
